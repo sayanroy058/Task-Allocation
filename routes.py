@@ -19,12 +19,12 @@ def create_admin():
     if not admin:
         admin = User(
             name='Admin',
-            email='admin@example.com',
+            email='taskassign02@gmail.com',
             mobile='0000000000',
             expertise='Administration',
             role='admin'
         )
-        admin.set_password('admin123')  # Change this in production
+        admin.set_password('Admin@123')  # Change this in production
         db.session.add(admin)
         db.session.commit()
         logging.info("Admin user created")
