@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}Access Forbidden - Task Management System{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <i class="fas fa-ban text-danger fa-5x mb-4"></i>
+    <h1 class="display-4">403 - Access Forbidden</h1>
+    <p class="lead">You do not have permission to access this resource.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">
+        <i class="fas fa-home me-2"></i>Return to Home
+    </a>
+</div>
+{% endblock %}

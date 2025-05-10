@@ -1,0 +1,293 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard - Task Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-stat-card {
+        transition: all 0.3s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0;
+        line-height: 1.2;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        color: #9aa0ac;
+        margin-bottom: 0.25rem;
+    }
+    .stat-card {
+        padding: 0.75rem 1.25rem;
+    }
+    .stat-icon {
+        font-size: 1.5rem;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-0">Admin Dashboard</h1>
+            <p class="text-muted mb-0">Overview of task management system</p>
+        </div>
+        
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <!-- Total Tasks -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Total Tasks</p>
+                            <h4 class="stat-value">{{ total_tasks }}</h4>
+                        </div>
+                        <div class="text-white-50">
+                            <i class="fas fa-tasks stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Completed Tasks</p>
+                            <h4 class="stat-value">{{ completed_tasks }}</h4>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-clipboard-check stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Tasks -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Pending Tasks</p>
+                            <h4 class="stat-value">{{ pending_tasks }}</h4>
+                        </div>
+                        <div class="text-warning">
+                            <i class="fas fa-clipboard-list stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Budget -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Total Budget</p>
+                            <h4 class="stat-value">₹{{ '%0.2f'|format(monthly_budget|sum) }}</h4>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-rupee-sign stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Task Completion Progress -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 h-100 bg-dark">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-light">Task Completion Progress</h5>
+                    <div class="text-secondary small">Task Completion by Month</div>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="adminTaskChart" 
+                               data-completed-tasks="{{ monthly_completed_tasks|tojson }}" 
+                               data-pending-tasks="{{ monthly_pending_tasks|tojson }}"
+                               data-edit-tasks="{{ monthly_edit_tasks|tojson }}"
+                               data-labels="{{ months|tojson }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    
+    <!-- Monthly Budget Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-dark">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-light">Monthly Budget</h5>
+                    <div class="text-secondary small">Monthly Budget from Completed Tasks</div>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="adminBudgetChart" data-budget="{{ monthly_budget|tojson }}" data-labels="{{ months|tojson }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Month Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-dark">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0 text-light">Current Month Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="d-flex flex-column">
+                                <span class="text-secondary">Total Tasks</span>
+                                <span class="h4 mb-0 text-light">{{ total_tasks }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="d-flex flex-column">
+                                <span class="text-secondary">Completed Tasks</span>
+                                <span class="h4 mb-0 text-success">{{ completed_tasks }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="d-flex flex-column">
+                                <span class="text-secondary">Pending Tasks</span>
+                                <span class="h4 mb-0 text-warning">{{ pending_tasks }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column">
+                                <span class="text-secondary">Budget</span>
+                                <span class="h4 mb-0 text-info">₹{{ '%0.2f'|format(monthly_budget|sum) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-dark">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-light">Recent Tasks</h5>
+                    <div class="d-flex">
+                        <a href="{{ url_for('admin_tasks') }}" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-eye me-1"></i>View All Tasks
+                        </a>
+                        <a href="{{ url_for('admin_tasks') }}?status=edit_requested" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-pen-to-square me-1"></i>Manage Edits
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Task ID</th>
+                                    <th>Description</th>
+                                    <th>Assigned To</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set recent_tasks = (tasks|default([]))[:5] %}
+                                {% if recent_tasks %}
+                                    {% for task in recent_tasks %}
+                                        <tr>
+                                            <td>{{ task.task_id }}</td>
+                                            <td>{{ task.description|truncate(30) }}</td>
+                                            <td>{{ task.assigned_user.name }}</td>
+                                            <td>{{ task.deadline.strftime('%d %b, %Y') }}</td>
+                                            <td>
+                                                {% if task.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                {% elif task.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                                {% elif task.status == 'edit_requested' %}
+                                                <span class="badge bg-info">Edit Requested</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>₹{{ task.price|round(2) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">No tasks available</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-dark">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0 text-light">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('add_task') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-plus-circle fa-fw me-2"></i>Assign New Task
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('add_user') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-user-plus fa-fw me-2"></i>Add New User
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin_tasks') }}?status=edit_requested" class="btn btn-outline-info w-100 py-3">
+                                <i class="fas fa-pen-to-square fa-fw me-2"></i>View Edit Requests
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

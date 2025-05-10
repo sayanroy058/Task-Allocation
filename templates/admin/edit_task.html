@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-pen-to-square me-2"></i>Request Edit for Task: {{ task.task_id }}</h2>
+        <p class="text-muted">Provide instructions for edits needed on the completed task</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Task Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Task ID:</strong> {{ task.task_id }}</p>
+                <p><strong>Assigned To:</strong> {{ task.assigned_user.name }}</p>
+                <p><strong>Deadline:</strong> {{ task.deadline.strftime('%d-%m-%Y') }}</p>
+                <p><strong>Price:</strong> ₹{{ task.price|round(2) }}</p>
+                <p><strong>Status:</strong> 
+                    {% if task.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif task.status == 'completed' %}
+                    <span class="badge bg-success">Completed</span>
+                    {% elif task.status == 'edit_requested' %}
+                    <span class="badge bg-info">Edit Requested</span>
+                    {% endif %}
+                </p>
+                <hr>
+                <h6>Task Description:</h6>
+                <div class="p-2 bg-light text-dark rounded">
+                    {{ task.description }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Submission Files</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for file in task.files if file.file_type == 'submission' %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ file.original_filename }}
+                        <a href="{{ url_for('download_file', file_type='submission', filename=file.filename) }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item">No submission files found</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Edit Request Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_edit_task', task_id=task.task_id) }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="instructions" class="form-label">Edit Instructions</label>
+                        <textarea class="form-control" id="instructions" name="instructions" rows="8" required></textarea>
+                        <div class="form-text">Provide detailed instructions about what changes are needed for this task.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="files" class="form-label">Upload Instruction Files (Optional)</label>
+                        <input type="file" class="form-control" id="files" name="files" multiple>
+                        <div class="form-text">You can upload multiple files to illustrate the required changes. Max size per file: 1GB</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_tasks') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times-circle me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-paper-plane me-1"></i>Send Edit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block title %}My Profile - Task Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">My Profile</h1>
+    </div>
+
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex mb-4">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 80px; height: 80px;">
+                            <span class="text-white fs-1">{{ current_user.name[0] }}</span>
+                        </div>
+                        <div>
+                            <h3 class="mb-1">{{ current_user.name }}</h3>
+                            <p class="text-muted mb-0">{{ current_user.expertise }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" value="{{ current_user.email }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Mobile Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="text" class="form-control" value="{{ current_user.mobile }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Expertise</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                            <input type="text" class="form-control" value="{{ current_user.expertise }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label text-muted">Member Since</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="text" class="form-control" value="{{ current_user.created_at.strftime('%d %B, %Y') }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('change_password') }}">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">New Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input type="password" class="form-control" id="password" name="new_password" required>
+                            </div>
+                            <div id="password-strength" class="form-text"></div>
+                            <div class="form-text">
+                                Password should be at least 8 characters and include uppercase, lowercase, numbers and special characters.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirm-password" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-check-double"></i></span>
+                                <input type="password" class="form-control" id="confirm-password" name="confirm_password" required>
+                            </div>
+                            <div id="password-match" class="form-text"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Stats -->
+    <div class="card border-0 mb-4">
+        <div class="card-header bg-transparent border-0">
+            <h5 class="card-title mb-0">Account Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="border rounded p-3 text-center h-100">
+                        <i class="fas fa-clipboard-list text-primary fa-2x mb-2"></i>
+                        <h3 class="fs-4">{{ pending_tasks_count }}</h3>
+                        <p class="text-muted mb-0">Pending Tasks</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="border rounded p-3 text-center h-100">
+                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                        <h3 class="fs-4">{{ completed_tasks_count }}</h3>
+                        <p class="text-muted mb-0">Completed Tasks</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <div class="border rounded p-3 text-center h-100">
+                        <i class="fas fa-pen-to-square text-info fa-2x mb-2"></i>
+                        <h3 class="fs-4">{{ edit_tasks_count }}</h3>
+                        <p class="text-muted mb-0">Tasks Requiring Edits</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-3 text-center h-100">
+                        <i class="fas fa-rupee-sign text-success fa-2x mb-2"></i>
+                        <h3 class="fs-4">₹{{ total_earnings|int }}</h3>
+                        <p class="text-muted mb-0">Total Earnings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

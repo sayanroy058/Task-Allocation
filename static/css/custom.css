@@ -1,0 +1,480 @@
+/* Custom styling for Task Management System */
+
+/* Custom Modal Implementation */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: none;
+    pointer-events: none;
+}
+
+.custom-modal.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2001;
+}
+
+.custom-modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bs-dark);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    z-index: 2002;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--bs-gray-700);
+}
+
+.custom-modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.custom-modal-body {
+    padding: 1rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.custom-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid var(--bs-gray-700);
+}
+
+/* Card styles */
+.card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-stat {
+    border-left: 4px solid var(--bs-primary);
+}
+
+.card-stat .icon-background {
+    font-size: 3rem;
+    opacity: 0.2;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+}
+
+/* Dashboard styles */
+.dashboard-stat {
+    transition: all 0.3s ease;
+}
+
+.dashboard-stat:hover {
+    transform: scale(1.05);
+}
+
+.status-completed {
+    color: var(--bs-success);
+}
+
+.status-pending {
+    color: var(--bs-warning);
+}
+
+.status-edit {
+    color: var(--bs-info);
+}
+
+/* Price formatting */
+.price {
+    color: var(--bs-success);
+    font-weight: bold;
+}
+
+/* Task item styles */
+.task-deadline {
+    font-size: 0.85rem;
+}
+
+.task-id {
+    font-family: monospace;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* File upload styles */
+.file-upload-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.custom-file-upload {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 0.375rem;
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--bs-dark);
+    transition: all 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.file-list {
+    margin-top: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    background-color: var(--bs-dark);
+}
+
+.file-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+}
+
+.file-size {
+    color: var(--bs-gray-500);
+    font-size: 0.85rem;
+}
+
+/* Utility classes */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Chart container styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Make sure charts are responsive */
+canvas {
+    max-width: 100%;
+}
+
+/* Fix flickering modals */
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1040 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1050 !important;
+    width: 100% !important;
+    height: 100% !important;
+    outline: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto !important; 
+}
+
+/* Task Details Modal Fixes */
+.task-details-modal {
+    backdrop-filter: blur(5px);
+    transform: translateZ(0);
+    will-change: transform;
+    transition: none !important;
+    animation: none !important;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+}
+
+.no-transition {
+    -webkit-animation: none !important;
+    animation: none !important;
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+.task-details-modal .modal-dialog {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transition: none !important;
+    animation: none !important;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+}
+
+.task-details-content {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    background-color: var(--bs-dark);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    transition: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+    -webkit-transition: none !important;
+    opacity: 1 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .table-responsive {
+        min-height: .01%;
+        overflow-x: auto;
+    }
+    
+    .card-stat .stat-value {
+        font-size: 2rem;
+    }
+    
+    /* Custom modal responsive */
+    .custom-modal-container {
+        width: 95%;
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 992px) {
+    .card-stat .icon-background {
+        font-size: 2rem;
+    }
+    
+    .dashboard-stat-card .card-body {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    /* Make sure modal content is readable */
+    .modal-dialog {
+        max-width: 90%;
+    }
+    
+    /* Better table display */
+    .table th, .table td {
+        white-space: nowrap;
+    }
+    
+    /* Reduce font sizes for better fit */
+    .modal-title {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    h1, .h1 {
+        font-size: 1.75rem;
+    }
+    
+    h2, .h2 {
+        font-size: 1.5rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    /* Make dropdowns work better on mobile */
+    .dropdown-menu {
+        width: 100%;
+    }
+    
+    /* Fix form elements */
+    .input-group {
+        flex-wrap: wrap;
+    }
+    
+    /* Smaller buttons on mobile */
+    .btn-group-sm > .btn, .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Improve modal readability on mobile */
+    .modal-body {
+        padding: 1rem 0.75rem;
+    }
+    
+    /* Custom modal responsive */
+    .custom-modal-container {
+        width: 95%;
+        max-width: 600px;
+        max-height: 85vh;
+    }
+    
+    .custom-modal-header, 
+    .custom-modal-footer {
+        padding: 0.75rem;
+    }
+    
+    .custom-modal-body {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .dashboard-stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body, .card-header, .card-footer {
+        padding: 0.75rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Make tables more mobile-friendly */
+    .table {
+        font-size: 0.75rem;
+    }
+    
+    /* Make filter forms more usable on small screens */
+    .form-select, .form-control {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    /* Stacked buttons on very small screens */
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.25rem;
+        border-radius: 0.25rem !important;
+    }
+    
+    /* Simplify navigation */
+    .navbar-brand {
+        max-width: 60%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    /* Simplify table views with less data */
+    .table td:nth-child(n+5) {
+        display: none;
+    }
+    
+    /* Show more on modals */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    /* Custom modal for small screens */
+    .custom-modal-container {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .custom-modal-body {
+        padding: 0.5rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .custom-modal-footer {
+        padding: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .custom-modal-footer .btn {
+        margin-top: 0.25rem;
+        flex: 1;
+    }
+}

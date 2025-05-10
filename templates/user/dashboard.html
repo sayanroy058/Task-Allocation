@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+
+{% block title %}User Dashboard - Task Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-stat-card {
+        transition: all 0.3s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0;
+        line-height: 1.2;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        color: #9aa0ac;
+        margin-bottom: 0.25rem;
+    }
+    .stat-card {
+        padding: 0.75rem 1.25rem;
+    }
+    .stat-icon {
+        font-size: 1.5rem;
+        opacity: 0.8;
+    }
+    .stat-footer {
+        font-size: 0.8rem;
+        padding: 0.5rem 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">My Dashboard</h1>
+        
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row mb-4">
+        <!-- Pending Tasks -->
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Pending Tasks</p>
+                            <h4 class="stat-value">{{ pending_tasks_count }}</h4>
+                        </div>
+                        <div class="text-warning">
+                            <i class="fas fa-clock stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 stat-footer py-2">
+                    <a href="{{ url_for('user_tasks') }}?status=pending" class="text-decoration-none small">
+                        View Pending Tasks <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Requiring Edits -->
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">Tasks Requiring Edits</p>
+                            <h4 class="stat-value">{{ edit_tasks_count }}</h4>
+                        </div>
+                        <div class="text-info">
+                            <i class="fas fa-pen-to-square stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 stat-footer py-2">
+                    <a href="{{ url_for('user_edits') }}" class="text-decoration-none small">
+                        View Edit Requests <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Stats -->
+        <div class="col-xl-4 col-md-12 mb-3">
+            <div class="card dashboard-stat-card border-0 bg-dark shadow-sm">
+                <div class="card-body stat-card py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label mb-0">This Month</p>
+                            <div class="d-flex flex-column mt-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <div class="me-2">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                    <div>
+                                        <span class="small">{{ total_completed }} Completed Tasks</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        <i class="fas fa-rupee-sign text-success"></i>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold">₹{{ total_budget|int }} Earned</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-success">
+                            <i class="fas fa-chart-line stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 stat-footer py-2">
+                    <a href="{{ url_for('user_tasks') }}?status=completed" class="text-decoration-none small">
+                        View Completed Tasks <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Task Completion Progress -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 h-100 bg-dark">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-light">Task Completion Progress</h5>
+                    <div class="text-secondary small">Task Completion by Month</div>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="userTaskChart" 
+                               data-completed-tasks="{{ monthly_completed_tasks|tojson }}" 
+                               data-pending-tasks="{{ monthly_pending_tasks|tojson }}"
+                               data-edit-tasks="{{ monthly_edit_tasks|tojson }}"
+                               data-labels="{{ months|tojson }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    
+    <!-- Monthly Earnings Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-dark">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-light">Monthly Earnings</h5>
+                    <div class="text-secondary small">Earnings from Completed Tasks</div>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="userEarningsChart" data-earnings="{{ monthly_earnings|tojson }}" data-labels="{{ months|tojson }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('user_tasks') }}?status=pending" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-clipboard-list fa-fw me-2"></i>View Pending Tasks
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('user_edits') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-pen-to-square fa-fw me-2"></i>View Edit Requests
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('user_profile') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-user-cog fa-fw me-2"></i>My Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

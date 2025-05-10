@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Task Management System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js with all necessary dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS Files -->
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/task-details.css') }}" rel="stylesheet">
+    
+    <!-- Additional Custom CSS -->
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        .table th {
+            font-weight: 600;
+        }
+        
+        .footer {
+            padding: 1rem 0;
+        }
+        
+        /* Fix flickering modals */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1040;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1050;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            outline: 0;
+        }
+        
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .file-list {
+            margin-top: 1rem;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            background-color: var(--bs-dark);
+        }
+        
+        .file-item i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(var(--bs-dark-rgb), 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--bs-primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--bs-primary-dark);
+        }
+        
+        /* Custom Styles */
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-tasks me-2"></i>Task Management System
+            </a>
+            
+            {% if current_user.is_authenticated %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_dashboard' else '' }}" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-chart-line me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_users' else '' }}" href="{{ url_for('admin_users') }}">
+                            <i class="fas fa-users me-1"></i>Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'admin_tasks' else '' }}" href="{{ url_for('admin_tasks') }}">
+                            <i class="fas fa-clipboard-list me-1"></i>Tasks
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'user_dashboard' else '' }}" href="{{ url_for('user_dashboard') }}">
+                            <i class="fas fa-chart-line me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'user_tasks' else '' }}" href="{{ url_for('user_tasks') }}">
+                            <i class="fas fa-clipboard-list me-1"></i>My Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ 'active' if request.endpoint == 'user_edits' else '' }}" href="{{ url_for('user_edits') }}">
+                            <i class="fas fa-pen-to-square me-1"></i>My Edits
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i>{{ current_user.name }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        {% if not current_user.is_admin() %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('user_profile') }}">
+                                <i class="fas fa-user-cog me-2"></i>My Profile
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer bg-dark text-light">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Task Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Task Details Modal JS -->
+    <script src="{{ url_for('static', filename='js/task-details.js') }}"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Handle file uploads
+        document.addEventListener('DOMContentLoaded', function() {
+            // File input handling
+            const fileInputs = document.querySelectorAll('.file-input');
+            
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const fileListId = this.getAttribute('data-file-list');
+                    const fileList = document.getElementById(fileListId);
+                    
+                    // Clear existing list
+                    fileList.innerHTML = '';
+                    
+                    // Add files to list
+                    for (let i = 0; i < this.files.length; i++) {
+                        const file = this.files[i];
+                        const fileSize = formatFileSize(file.size);
+                        
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `
+                            <i class="fas fa-file"></i>
+                            <div class="flex-grow-1">
+                                <div>${file.name}</div>
+                                <small class="text-muted">${fileSize}</small>
+                            </div>
+                        `;
+                        
+                        fileList.appendChild(fileItem);
+                    }
+                });
+            });
+            
+            // Password strength check
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', checkPasswordStrength);
+            }
+            
+            // Password match check
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            }
+        });
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' bytes';
+            } else if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(1) + ' KB';
+            } else {
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+        }
+        
+        // Check password strength
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthIndicator = document.getElementById('password-strength');
+            
+            if (!strengthIndicator) return;
+            
+            if (password.length < 8) {
+                strengthIndicator.innerHTML = 'Password is too short';
+                strengthIndicator.className = 'form-text text-danger';
+                return;
+            }
+            
+            let strength = 0;
+            if (password.match(/[a-z]+/)) {
+                strength += 1;
+            }
+            if (password.match(/[A-Z]+/)) {
+                strength += 1;
+            }
+            if (password.match(/[0-9]+/)) {
+                strength += 1;
+            }
+            if (password.match(/[^a-zA-Z0-9]+/)) {
+                strength += 1;
+            }
+            
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthIndicator.innerHTML = 'Weak password';
+                    strengthIndicator.className = 'form-text text-danger';
+                    break;
+                case 2:
+                    strengthIndicator.innerHTML = 'Fair password';
+                    strengthIndicator.className = 'form-text text-warning';
+                    break;
+                case 3:
+                    strengthIndicator.innerHTML = 'Good password';
+                    strengthIndicator.className = 'form-text text-info';
+                    break;
+                case 4:
+                    strengthIndicator.innerHTML = 'Strong password';
+                    strengthIndicator.className = 'form-text text-success';
+                    break;
+            }
+        }
+        
+        // Check password match
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const matchIndicator = document.getElementById('password-match');
+            
+            if (!matchIndicator) return;
+            
+            if (password === confirmPassword) {
+                matchIndicator.innerHTML = 'Passwords match';
+                matchIndicator.className = 'form-text text-success';
+            } else {
+                matchIndicator.innerHTML = 'Passwords do not match';
+                matchIndicator.className = 'form-text text-danger';
+            }
+        }
+    </script>
+    
+    <!-- Additional JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
